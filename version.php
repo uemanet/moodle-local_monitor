@@ -2,8 +2,8 @@
 
 // monitor plugin
 
-$plugin->version    = 2016110901;
-$plugin->requires   = 2014313100;
-$plugin->release    = '0.1';
-$plugin->maturity   = MATURITY_STABLE;
-$plugin->component  = 'local_monitor';
+$plugin->version = 2016113013;
+$plugin->requires = 2013062000;
+$plugin->release = '0.1 alfa';
+$plugin->maturity = MATURITY_STABLE;
+$plugin->component = 'local_monitor';
