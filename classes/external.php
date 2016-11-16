@@ -11,7 +11,7 @@
 class local_monitor_external extends external_api
 {
     private static $day = 60 * 60 * 24;
-    private static $session = 21;
+    private static $session = 20;
 
     /**
      * Returns default values for get_online_tutors_parameters
@@ -38,7 +38,7 @@ class local_monitor_external extends external_api
                 'time_between_clicks' => new external_value(PARAM_INT, 'Tempo entre os clicks', VALUE_DEFAULT, $default['time_between_clicks']),
                 'start_date' => new external_value(PARAM_TEXT, 'Data de início da consulta: dd-mm-YYYY', VALUE_DEFAULT, $default['start_date']),
                 'end_date' => new external_value(PARAM_TEXT, 'Data de fim da consulta: dd-mm-YYYY', VALUE_DEFAULT, $default['end_date']),
-                'tutor' => new external_value(PARAM_TEXT, 'ID do Tutor', VALUE_DEFAULT
+                'tutor' => new external_value(PARAM_INT, 'ID do Tutor', VALUE_DEFAULT
                 )
             )
         );
@@ -47,6 +47,7 @@ class local_monitor_external extends external_api
     public static function get_online_time($timeBetweenClicks, $startDate, $endDate, $tutor)
     {
         global $DB;
+        $DB->set_debug(false);
 
         self::validate_parameters(self::get_online_time_parameters(), array(
                 'time_between_clicks' => $timeBetweenClicks,
@@ -55,11 +56,42 @@ class local_monitor_external extends external_api
                 'tutor' => $tutor,
             )
         );
-        // Todo: Implementar retorno do tempo diario de acesso do tutor ao ambiente
-        return json_encode(["Tutor" => "Testando"]);
+
+        $start = (integer) strtotime($startDate);
+        $end   = (integer) strtotime($endDate);
+
+        $interval = $end - $start;
+        $days = $interval / local_monitor_external::$day;
+
+        $tutor = $DB->get_record('user', array('id' => $tutor));
+
+        for($i = $days; $i >= 1; $i--){
+
+            $parameters = array(
+                (integer) $tutor,
+                $end - local_monitor_external::$day * $i,
+                $end - local_monitor_external::$day * ($i - 1)
+            );
+
+            // Obter os logs do usuario
+            $query = "SELECT id, timecreated
+                        FROM {logstore_standard_log}
+                        WHERE userid = ?
+                        AND timecreated >= ?
+                        AND timecreated <= ?
+                        ORDER BY userid ASC";
+
+            try {
+                $logs = $DB->get_records_sql($query, $parameters);
+                return var_dump($logs);
+            } catch (\Exception $e){
+                throw $e;
+            }
+        }
     }
 
     /**
+     *
      * Returns description of get_online_time return values
      * @return external_value
      */
