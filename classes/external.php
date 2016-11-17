@@ -10,8 +10,7 @@
 
 class local_monitor_external extends external_api
 {
-    private static $day = 60 * 60 * 24;
-    private static $session = 20;
+    private static $day     = 60 * 60 * 24;
 
     /**
      * Returns default values for get_online_tutors_parameters
@@ -44,6 +43,15 @@ class local_monitor_external extends external_api
         );
     }
 
+    /**
+     * Returns the time online day by day
+     * @param $timeBetweenClicks
+     * @param $startDate
+     * @param $endDate
+     * @param $tutor
+     * @return array
+     * @throws Exception
+     */
     public static function get_online_time($timeBetweenClicks, $startDate, $endDate, $tutor)
     {
         global $DB;
@@ -65,7 +73,9 @@ class local_monitor_external extends external_api
         $tutor = $DB->get_record('user', array('id' => $tutor));
         $name  = $tutor->firstname . ' ' . $tutor->lastname;
 
-        for($i = $days; $i != 1; $i--){
+        $result = array();
+
+        for($i = $days; $i > 0; $i--){
 
             $parameters = array(
                 (integer) $tutor,
@@ -80,8 +90,6 @@ class local_monitor_external extends external_api
                         AND timecreated >= ?
                         AND timecreated <= ?
                         ORDER BY userid ASC";
-
-            $result = array();
 
             try {
                 $DB->set_debug(false);
@@ -108,7 +116,7 @@ class local_monitor_external extends external_api
             }
         }
 
-        return print_r($result);
+        return $result;
     }
 
     /**
