@@ -37,8 +37,7 @@ class local_monitor_external extends external_api
                 'time_between_clicks' => new external_value(PARAM_INT, 'Tempo entre os clicks', VALUE_DEFAULT, $default['time_between_clicks']),
                 'start_date' => new external_value(PARAM_TEXT, 'Data de início da consulta: dd-mm-YYYY', VALUE_DEFAULT, $default['start_date']),
                 'end_date' => new external_value(PARAM_TEXT, 'Data de fim da consulta: dd-mm-YYYY', VALUE_DEFAULT, $default['end_date']),
-                'tutor' => new external_value(PARAM_INT, 'ID do Tutor', VALUE_DEFAULT
-                )
+                'tutor' => new external_value(PARAM_INT, 'ID do Tutor', VALUE_DEFAULT)
             )
         );
     }
@@ -46,31 +45,31 @@ class local_monitor_external extends external_api
     /**
      * Returns the time online day by day
      * @param $timeBetweenClicks
-     * @param $startDate
-     * @param $endDate
-     * @param $tutor
+     * @param $startdate
+     * @param $enddate
+     * @param $tutorid
      * @return array
      * @throws Exception
      */
-    public static function get_online_time($timeBetweenClicks, $startDate, $endDate, $tutor)
+    public static function get_online_time($timeBetweenClicks, $startdate, $enddate, $tutorid)
     {
         global $DB;
 
         self::validate_parameters(self::get_online_time_parameters(), array(
                 'time_between_clicks' => $timeBetweenClicks,
-                'start_date' => $startDate,
-                'end_date' => $endDate,
-                'tutor' => $tutor,
+                'start_date' => $startdate,
+                'end_date' => $enddate,
+                'tutor' => $tutorid,
             )
         );
 
-        $start = (integer) strtotime($startDate);
-        $end   = (integer) strtotime($endDate);
+        $start = (integer) strtotime($startdate);
+        $end   = (integer) strtotime($enddate);
 
         $interval = $end - $start;
         $days = $interval / local_monitor_external::$day;
 
-        $tutor = $DB->get_record('user', array('id' => $tutor));
+        $tutor = $DB->get_record('user', array('id' => $tutorid));
         $name  = $tutor->firstname . ' ' . $tutor->lastname;
 
         $result = array();
@@ -78,12 +77,11 @@ class local_monitor_external extends external_api
         for($i = $days; $i > 0; $i--){
 
             $parameters = array(
-                (integer) $tutor,
+                (integer) $tutorid,
                 $end - local_monitor_external::$day * $i,
                 $end - local_monitor_external::$day * ($i - 1)
             );
 
-            // Obter os logs do usuario
             $query = "SELECT id, timecreated
                         FROM {logstore_standard_log}
                         WHERE userid = ?
@@ -92,7 +90,7 @@ class local_monitor_external extends external_api
                         ORDER BY userid ASC";
 
             try {
-                $DB->set_debug(false);
+                // Obter os logs do usuario
                 $logs = $DB->get_records_sql($query, $parameters);
                 $date = gmdate("d-m-Y", $end - ( local_monitor_external::$day * $i ));
 
@@ -103,7 +101,7 @@ class local_monitor_external extends external_api
 
                 foreach ($logs as $log){
                     if(($previousLogTime - $log->timecreated) < $timeBetweenClicks){
-                        $onlineTime  += $previousLogTime - $log->timecreated;
+                        $onlineTime  += $log->timecreated - $previousLogTime;
                         $sessionStart = $log->timecreated;
                     }
 
