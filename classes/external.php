@@ -26,6 +26,34 @@ class local_monitor_external extends external_api
     }
 
     /**
+     * Validate rules for get_online_tutors
+     * @param $timeBetweenClicks
+     * @param $startdate
+     * @param $enddate
+     * @return bool
+     * @throws moodle_exception
+     */
+    private static function get_online_time_validate_rules($timeBetweenClicks, $startdate, $enddate)
+    {
+        $startdate = (integer) strtotime($startdate);
+        $enddate   = (integer) strtotime($enddate);
+
+        if(!($timeBetweenClicks > 0)){
+            throw new moodle_exception('timebetweenclickserror' ,'local_monitor', null, null, '');
+        }
+
+        if($startdate > $enddate){
+            throw new moodle_exception('startdateerror' ,'local_monitor', null, null, '');
+        }
+
+        if($enddate >= time()){
+            throw new moodle_exception('enddateerror' ,'local_monitor', null, null, '');
+        }
+
+        return true;
+    }
+
+    /**
      * Returns description of get_online_time parameters
      * @return external_function_parameters
      */
@@ -63,8 +91,10 @@ class local_monitor_external extends external_api
             )
         );
 
+        local_monitor_external::get_online_time_validate_rules($timeBetweenClicks, $startdate, $enddate);
+
         $start = (integer) strtotime($startdate);
-        $end   = (integer) strtotime($enddate);
+        $end   = (integer) strtotime($enddate) + local_monitor_external::$day;
 
         $interval = $end - $start;
         $days = $interval / local_monitor_external::$day;
@@ -87,7 +117,7 @@ class local_monitor_external extends external_api
                         WHERE userid = ?
                         AND timecreated >= ?
                         AND timecreated <= ?
-                        ORDER BY userid ASC";
+                        ORDER BY timecreated ASC";
 
             try {
                 // Obter os logs do usuario
@@ -100,7 +130,7 @@ class local_monitor_external extends external_api
                 $onlineTime      = 0;
 
                 foreach ($logs as $log){
-                    if(($previousLogTime - $log->timecreated) < $timeBetweenClicks){
+                    if(($log->timecreated - $previousLogTime) < $timeBetweenClicks){
                         $onlineTime  += $log->timecreated - $previousLogTime;
                         $sessionStart = $log->timecreated;
                     }
