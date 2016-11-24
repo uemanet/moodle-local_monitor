@@ -102,9 +102,12 @@ class local_monitor_external extends external_api
         $tutor = $DB->get_record('user', array('id' => $tutorid));
         $name  = $tutor->firstname . ' ' . $tutor->lastname;
 
-        $result = array();
+        $result = [
+          "id" => $tutor->id,
+          "fullname" => $name
+        ];
 
-        for($i = $days; $i > 0; $i--){
+        for ($i = $days; $i > 0; $i--) {
 
             $parameters = array(
                 (integer) $tutorid,
@@ -125,8 +128,8 @@ class local_monitor_external extends external_api
                 $date = gmdate("d-m-Y", $end - ( local_monitor_external::$day * $i ));
 
                 $previousLog     = array_shift($logs);
-                $previousLogTime = $previousLog->timecreated;
-                $sessionStart    = $previousLog->timecreated;
+                $previousLogTime = isset($previousLog) ? $previousLog->timecreated : 0;
+                $sessionStart    = isset($previousLog) ? $previousLog->timecreated : 0;
                 $onlineTime      = 0;
 
                 foreach ($logs as $log){
@@ -138,7 +141,7 @@ class local_monitor_external extends external_api
                     $previousLogTime = $log->timecreated;
                 }
 
-                $result[$i] = (object) array('onlinetime' => $onlineTime, 'date' => $date);
+                $result['items'][] = ['onlinetime' => $onlineTime, 'date' => $date];
             } catch (\Exception $e){
                 throw $e;
             }
@@ -154,13 +157,15 @@ class local_monitor_external extends external_api
      */
     public static function get_online_time_returns()
     {
-        return new external_multiple_structure(
-          new external_single_structure(
-              array(
-                  'onlinetime' => new external_value(PARAM_INT, 'Tempo online'),
-                  'date' => new external_value(PARAM_TEXT, 'Data')
-              )
+        return new external_function_parameters([
+          'id' => new external_value(PARAM_INT, 'ID no moodle do usuário'),
+          'fullname' => new external_value(PARAM_TEXT, 'Nome completo do tutor'),
+          'items' => new external_multiple_structure(
+            new external_single_structure([
+                'onlinetime' => new external_value(PARAM_TEXT, 'Tempo online'),
+                'date' => new external_value(PARAM_TEXT, 'Data')
+            ])
           )
-        );
+        ]);
     }
 }
