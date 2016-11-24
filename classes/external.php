@@ -138,7 +138,7 @@ class local_monitor_external extends external_api
                     $previousLogTime = $log->timecreated;
                 }
 
-                $result[$i] = (object) array('name' => $name, 'onlinetime' => $onlineTime, 'date' => $date);
+                $result[$i] = (object) array('onlinetime' => $onlineTime, 'date' => $date);
             } catch (\Exception $e){
                 throw $e;
             }
@@ -157,7 +157,6 @@ class local_monitor_external extends external_api
         return new external_multiple_structure(
           new external_single_structure(
               array(
-                  'name' => new external_value(PARAM_TEXT, 'Nome do Tutor'),
                   'onlinetime' => new external_value(PARAM_INT, 'Tempo online'),
                   'date' => new external_value(PARAM_TEXT, 'Data')
               )
