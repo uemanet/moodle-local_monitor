@@ -7,6 +7,9 @@
  * @copyright   2016 Uemanet
  * @author      Lucas S. Vieira
  */
+
+defined('MOODLE_INTERNAL') || die();
+
 class local_monitor_external extends external_api
 {
     private static $day = 60 * 60 * 24;
@@ -17,11 +20,11 @@ class local_monitor_external extends external_api
      */
     private static function get_online_time_default_parameters()
     {
-        return [
+        return array(
             'time_between_clicks' => 60,
             'start_date' => gmdate('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 7, date('Y'))),
             'end_date' => gmdate('Y-m-d', mktime(0, 0, 0, date('m'), date('d'), date('Y')))
-        ];
+        );
     }
 
     /**
@@ -60,13 +63,12 @@ class local_monitor_external extends external_api
     {
         $default = local_monitor_external::get_online_time_default_parameters();
 
-        return new external_function_parameters([
-                'time_between_clicks' => new external_value(PARAM_INT, get_string('getonlinetime_param_time_between_clicks', 'local_monitor'), VALUE_DEFAULT, $default['time_between_clicks']),
-                'start_date' => new external_value(PARAM_TEXT, get_string('getonlinetime_param_start_date', 'local_monitor'), VALUE_DEFAULT, $default['start_date']),
-                'end_date' => new external_value(PARAM_TEXT, get_string('getonlinetime_param_end_date', 'local_monitor'), 'Data de fim da consulta: dd-mm-YYYY', VALUE_DEFAULT, $default['end_date']),
-                'tutor_id' => new external_value(PARAM_INT, get_string('getonlinetime_param_tutor_id', 'local_monitor'), 'ID do Tutor', VALUE_DEFAULT)
-            ]
-        );
+        return new external_function_parameters(array(
+            'time_between_clicks' => new external_value(PARAM_INT, get_string('getonlinetime_param_time_between_clicks', 'local_monitor'), VALUE_DEFAULT, $default['time_between_clicks']),
+            'start_date' => new external_value(PARAM_TEXT, get_string('getonlinetime_param_start_date', 'local_monitor'), VALUE_DEFAULT, $default['start_date']),
+            'end_date' => new external_value(PARAM_TEXT, get_string('getonlinetime_param_end_date', 'local_monitor'), 'Data de fim da consulta: dd-mm-YYYY', VALUE_DEFAULT, $default['end_date']),
+            'tutor_id' => new external_value(PARAM_INT, get_string('getonlinetime_param_tutor_id', 'local_monitor'), 'ID do Tutor', VALUE_DEFAULT)
+        ));
     }
 
     /**
@@ -101,10 +103,7 @@ class local_monitor_external extends external_api
         $tutor = $DB->get_record('user', array('id' => $tutorid));
         $name = $tutor->firstname . ' ' . $tutor->lastname;
 
-        $result = [
-            "id" => $tutor->id,
-            "fullname" => $name
-        ];
+        $result = array('id' => $tutor->id, 'fullname' => $name, 'items' => array());
 
         for ($i = $days; $i > 0; $i--) {
 
@@ -140,9 +139,14 @@ class local_monitor_external extends external_api
                     $previousLogTime = $log->timecreated;
                 }
 
-                $result['items'][] = ['onlinetime' => $onlineTime, 'date' => $date];
+                $result['items'][] = array('onlinetime' => $onlineTime, 'date' => $date);
             } catch (\Exception $e) {
-                throw $e;
+
+                if(helper::debug()){
+                    throw new moodle_exception('databaseaccesserror', 'local_monitor', null, null, '');
+                }
+
+                continue;
             }
         }
 
@@ -155,15 +159,15 @@ class local_monitor_external extends external_api
      */
     public static function get_online_time_returns()
     {
-        return new external_function_parameters([
+        return new external_function_parameters(array(
             'id' => new external_value(PARAM_INT, get_string('getonlinetime_return_id', 'local_monitor')),
             'fullname' => new external_value(PARAM_TEXT, get_string('getonlinetime_return_fullname', 'local_monitor')),
             'items' => new external_multiple_structure(
-                new external_single_structure([
+                new external_single_structure(array(
                     'onlinetime' => new external_value(PARAM_TEXT, get_string('getonlinetime_return_onlinetime', 'local_monitor')),
                     'date' => new external_value(PARAM_TEXT, get_string('getonlinetime_return_date', 'local_monitor'))
-                ])
+                ))
             )
-        ]);
+        ));
     }
 }

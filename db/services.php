@@ -28,7 +28,7 @@ $functions = array(
 $services = array(
     'Monitor' => array(
         'functions' => array('get_tutor_online_time', 'ping'),
-        'restrictedusers' => 0,
+        'restrictedusers' => 1,
         'enabled' => 1
     )
 );

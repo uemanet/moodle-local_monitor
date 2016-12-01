@@ -26,3 +26,4 @@ $string['getonlinetime_return_date'] = 'Date';
 $string['timebetweenclickserror'] = 'Time between clicks should be greater than 0';
 $string['startdateerror'] = 'Start date should be less than end date';
 $string['enddateerror'] = 'End date should be equals to or less than today date';
+$string['databaseaccesserror'] = 'Error on trying access database';
