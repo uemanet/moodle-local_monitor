@@ -5,7 +5,7 @@
  *
  * @package monitor
  * @copyright   2016 Uemanet
- * @author      Lucas Vieira
+ * @author      Lucas S. Vieira
  */
 class local_monitor_external extends external_api
 {
