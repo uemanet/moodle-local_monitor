@@ -12,7 +12,14 @@ $functions = array(
         'classname' => 'local_monitor_external',
         'methodname' => 'get_online_time',
         'classpath' => 'local/monitor/classes/external',
-        'description' => 'Tempo on-line do tutor',
+        'description' => 'Tutor online time',
+        'type' => 'read'
+    ),
+    'ping' => array(
+        'classname' => 'local_monitor_ping',
+        'methodname' => 'ping',
+        'classpath' => 'local/monitor/classes/ping',
+        'description' => 'Checks the connection with Moodle',
         'type' => 'read'
     )
 );
@@ -20,7 +27,7 @@ $functions = array(
 
 $services = array(
     'Monitor' => array(
-        'functions' => array('get_tutor_online_time'),
+        'functions' => array('get_tutor_online_time', 'ping'),
         'restrictedusers' => 0,
         'enabled' => 1
     )
