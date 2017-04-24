@@ -20,7 +20,7 @@ abstract class helper
         $fileContent = file_get_contents(dirname(__DIR__) . DIRECTORY_SEPARATOR . helper::FILE);
         $json = json_decode($fileContent, true);
 
-        if(array_key_exists($key, $json)){
+        if (array_key_exists($key, $json)) {
             return $json[$key];
         }
 

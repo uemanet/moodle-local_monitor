@@ -15,6 +15,7 @@ $string['getonlinetime_param_time_between_clicks'] = 'Time between clicks ';
 $string['getonlinetime_param_start_date'] = 'Start date query: Y-m-d ';
 $string['getonlinetime_param_end_date'] = 'End date query: Y-m-d ';
 $string['getonlinetime_param_tutor_id'] = 'Tutor ID';
+$string['getonlinetime_param_group_id'] = 'Group ID';
 
 // Return strings
 $string['getonlinetime_return_id'] = 'Tutor ID from Moodle';
@@ -27,3 +28,4 @@ $string['timebetweenclickserror'] = 'Time between clicks should be greater than 
 $string['startdateerror'] = 'Start date should be less than end date';
 $string['enddateerror'] = 'End date should be equals to or less than today date';
 $string['databaseaccesserror'] = 'Error on trying access database';
+$string['tutornonexistserror'] = 'The pes_id given do not match with an know tutor';
