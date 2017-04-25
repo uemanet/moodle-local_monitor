@@ -15,6 +15,7 @@ $functions = array(
         'description' => 'Tutor online time',
         'type' => 'read'
     ),
+    
     'monitor_ping' => array(
         'classname' => 'local_monitor_ping',
         'methodname' => 'monitor_ping',
