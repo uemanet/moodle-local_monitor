@@ -115,7 +115,7 @@ class local_monitor_external extends external_api
             for ($i = $days; $i > 0; $i--) {
 
                 $parameters = array(
-                    (integer)$tutorid,
+                    (integer)$tutor->id,
                     $end - local_monitor_external::$day * $i,
                     $end - local_monitor_external::$day * ($i - 1)
                 );
