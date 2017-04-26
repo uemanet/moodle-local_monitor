@@ -39,18 +39,24 @@ class local_monitor_external extends external_api
     */
     private static function get_online_time_validate_rules($timeBetweenClicks, $startdate, $enddate)
     {
-        $startdate = (integer)strtotime($startdate);
-        $enddate = (integer)strtotime($enddate);
+        $startdate = new DateTime($startdate, core_date::get_server_timezone_object());
+        $enddate = new DateTime($enddate, core_date::get_server_timezone_object());
+
+        $now = new DateTime("NOW", core_date::get_server_timezone_object());
+
+        $start = $startdate->getTimestamp();
+        $end = $enddate->getTimestamp();
+
 
         if (!($timeBetweenClicks > 0)) {
             throw new moodle_exception('timebetweenclickserror', 'local_monitor', null, null, '');
         }
 
-        if ($startdate > $enddate) {
+        if ($start > $end) {
             throw new moodle_exception('startdateerror', 'local_monitor', null, null, '');
         }
 
-        if ($enddate >= time()) {
+        if ($end >= $now->getTimestamp()) {
             throw new moodle_exception('enddateerror', 'local_monitor', null, null, '');
         }
 
@@ -95,8 +101,11 @@ class local_monitor_external extends external_api
 
         local_monitor_external::get_online_time_validate_rules($timeBetweenClicks, $startdate, $enddate);
 
-        $start = (integer)strtotime($startdate);
-        $end = (integer)strtotime($enddate) + local_monitor_external::$day;
+        $start = new DateTime($startdate, core_date::get_server_timezone_object());
+        $end = new DateTime($enddate, core_date::get_server_timezone_object());
+
+        $start = $start->getTimestamp();
+        $end = $end->getTimestamp() + local_monitor_external::$day;
 
         $interval = $end - $start;
         $days = $interval / local_monitor_external::$day;
@@ -129,7 +138,11 @@ class local_monitor_external extends external_api
 
                 // Get user logs
                 $logs = $DB->get_records_sql($query, $parameters);
-                $date = gmdate("d-m-Y", $end - (local_monitor_external::$day * $i));
+
+                $date = new DateTime("NOW", core_date::get_server_timezone_object());
+                $date->setTimestamp($end - (local_monitor_external::$day * $i));
+
+                //$date = gmdate("d-m-Y", $end - (local_monitor_external::$day * $i));
 
                 $previousLog = array_shift($logs);
                 $previousLogTime = isset($previousLog) ? $previousLog->timecreated : 0;
@@ -145,7 +158,7 @@ class local_monitor_external extends external_api
                     $previousLogTime = $log->timecreated;
                 }
 
-                $result['items'][] = array('onlinetime' => $onlineTime, 'date' => $date);
+                $result['items'][] = array('onlinetime' => $onlineTime, 'date' => $date->format("d-m-Y"));
             }
 
         } catch (\Exception $e) {
@@ -159,8 +172,8 @@ class local_monitor_external extends external_api
 
     /**
     * Returns description of get_online_time return values
-    * @return external_value
-    */
+    * @return external_function_parameters
+     */
     public static function get_online_time_returns()
     {
         return new external_function_parameters(array(
@@ -172,6 +185,7 @@ class local_monitor_external extends external_api
                             'date' => new external_value(PARAM_TEXT, get_string('getonlinetime_return_date', 'local_monitor'))
                         )
                     ))
-            ));
+            )
+        );
     }
 }

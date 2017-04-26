@@ -5,6 +5,7 @@
  *
  * @package monitor
  * @copyright 2016 Uemanet
+ * @author Lucas S. Vieira
  */
 abstract class helper
 {
