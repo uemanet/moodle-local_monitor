@@ -22,10 +22,15 @@ class local_monitor_external extends external_api
     */
     private static function get_online_time_default_parameters()
     {
+        $startdate = new DateTime("NOW", core_date::get_server_timezone_object());
+        $enddate = new DateTime("NOW", core_date::get_server_timezone_object());
+
+        $enddate->add(new DateInterval('P7D'));
+
         return array(
             'time_between_clicks' => 60,
-            'start_date' => gmdate('Y-m-d', mktime(0, 0, 0, date('m'), date('d') - 7, date('Y'))),
-            'end_date' => gmdate('Y-m-d', mktime(0, 0, 0, date('m'), date('d'), date('Y')))
+            'start_date' => $startdate->getTimestamp(),
+            'end_date' => $enddate->getTimestamp()
         );
     }
 
