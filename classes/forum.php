@@ -73,15 +73,7 @@ class local_monitor_forum extends external_api
 
           $poststutor_answered = 0;
           $posts_students = 0;
-          $primeiro = 0;
-
-
-          foreach ($posts['posts'] as $key => $post) {
-
-              if ($primeiro == 0) {
-                $primeiro = $post;
-              }
-          }
+          $primeiro = array_shift($posts['posts']);
 
           foreach ($primeiro->children as $key => $post) {
 
