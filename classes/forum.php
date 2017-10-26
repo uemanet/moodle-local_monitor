@@ -47,7 +47,7 @@ class local_monitor_forum extends external_api
         $datacourse =  $DB->get_record('int_turma_course', array('trm_id'=>$trm_id), '*');
         $courseId  = $datacourse->courseid;
         if(!$courseId) {
-            throw new Exception("O a turma com id: ".$pes_id ." não está mapeado no ambiente virtual.");
+            throw new Exception("A turma com id: ".$trm_id ." não está mapeada com o ambiente virtual.");
         }
 
         $course =  $DB->get_record('course', array('id'=>$courseId), '*');
@@ -74,20 +74,37 @@ class local_monitor_forum extends external_api
           $poststutor_answered = 0;
           $posts_students = 0;
           $primeiro = array_shift($posts['posts']);
+          $numerador = 0;
+          $denominador = 0;
 
           foreach ($primeiro->children as $key => $post) {
 
               if ($post->userid != $userId) {
+
                 $posts_students++;
-              }
+                foreach ($post->children as $value) {
 
-              foreach ($post->children as $value) {
-
-                if ($value->userid == $userId) {
-                  $poststutor_answered++;
-                  break;
+                  if ($value->userid == $userId) {
+                    $numerador = $numerador + $value->created - $post->created;
+                    $denominador++;
+                    $poststutor_answered++;
+                    break;
+                  }
                 }
+
               }
+
+          }
+
+          $media = $numerador/$denominador;
+          $dias = floor($media/(3600*24));
+          $horas = floor(($media-($dias*3600*24))/3600);
+          $minutos = floor(($media-($horas*3600)-($dias*3600*24))/60);
+          $segundos = floor($media%60);
+          if (!is_nan($media)) {
+            $tempo =  $dias . 'd' .$horas . "h" . $minutos . "min" ;
+          }else {
+            $tempo = '';
           }
 
           $returnData['itens'][] = array(
@@ -97,7 +114,9 @@ class local_monitor_forum extends external_api
                                          'postsstudents' => $posts_students,
                                          'poststutor' => $poststutor_answered,
                                          'participacaototal' => $posts['participacaototal'],
-                                         'percentual' => number_format ($poststutor_answered/$posts_students, 2));
+                                         'percentual' => number_format ($poststutor_answered/$posts_students, 2),
+                                         'tempo' => $tempo
+                                       );
         }
 
         return $returnData;
@@ -112,7 +131,7 @@ class local_monitor_forum extends external_api
           $userId
       );
 
-      $posts = $DB->get_records_sql("SELECT id, parent, userid FROM {forum_posts}  WHERE discussion = ?", $parameters);
+      $posts = $DB->get_records_sql("SELECT id, parent, userid, created FROM {forum_posts}  WHERE discussion = ?", $parameters);
       $postsTutor = count($DB->get_records_sql("SELECT id, parent, userid FROM {forum_posts}  WHERE discussion = ? AND parent != 0 AND userid = ?", $parameters));
       $postsStudents = count($DB->get_records_sql("SELECT id, parent, userid FROM {forum_posts}  WHERE discussion = ? and userid != ?", $parameters));
 
@@ -154,7 +173,8 @@ class local_monitor_forum extends external_api
                             'poststutor' => new external_value(PARAM_TEXT, 'Quantidade de posts que o tutor fez em uma discussion'),
                             'postsstudents' => new external_value(PARAM_TEXT, 'Quantidade de posts feitos pelos alunos em uma discussion'),
                             'percentual' => new external_value(PARAM_TEXT, 'Percentual de respostas de um tutor em uma discussion'),
-                            'participacaototal' => new external_value(PARAM_TEXT, 'Participação completa do tutor em uma discussion')
+                            'participacaototal' => new external_value(PARAM_TEXT, 'Participação completa do tutor em uma discussion'),
+                            'tempo' => new external_value(PARAM_TEXT, 'Tempo médio de respostas aos fóruns')
                         )
                     )
                 )
