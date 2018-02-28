@@ -93,7 +93,8 @@ class local_monitor_forum extends external_api {
         $discussions = $DB->get_records_sql($query, $parameters);
 
         foreach ($discussions as $key => $discussion) {
-            $posts = self::make_tree_of_discussions($discussion->id, $userid);
+            // TODO refatorar
+            $tree = new \local_monitor\discussion_tree($discussion->id, $userid);
 
             $poststutoranswered = 0;
             $postsstudents = 0;
@@ -136,7 +137,7 @@ class local_monitor_forum extends external_api {
                 'discussion' => $discussion->name,
                 'postsstudents' => $postsstudents,
                 'poststutor' => $poststutoranswered,
-                'participacaototal' => $posts['participacaototal'],
+                'participacaototal' => $tree->user_participation(),
                 'percentual' => number_format($poststutoranswered / $postsstudents, 2),
                 'tempo' => $tempo
             );
@@ -154,29 +155,6 @@ class local_monitor_forum extends external_api {
         );
 
         try {
-            $postssql = "SELECT id, parent, userid, created FROM {forum_posts}  WHERE discussion = ?";
-            $poststutorsql = "SELECT id, parent, userid FROM {forum_posts}  WHERE discussion = ? AND parent != 0 AND userid = ?";
-            $postsstudentssql = "SELECT id, parent, userid FROM {forum_posts}  WHERE discussion = ? and userid != ?";
-
-            $posts = $DB->get_records_sql($postssql, $parameters);
-            $poststutor = count($DB->get_records_sql($poststutorsql, $parameters));
-            $postsstudents = count($DB->get_records_sql($postsstudentssql, $parameters));
-
-            foreach ($posts as $pid => $p) {
-                if (!$p->parent) {
-                    continue;
-                }
-
-                if (!isset($posts[$p->parent])) {
-                    continue;
-                }
-
-                if (!isset($posts[$p->parent]->children)) {
-                    $posts[$p->parent]->children = array();
-                }
-
-                $posts[$p->parent]->children[$pid] =& $posts[$pid];
-            }
         } catch (\Exception $exception) {
             if ($CFG->debug == DEBUG_DEVELOPER) {
                 throw $exception;
