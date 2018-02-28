@@ -32,13 +32,15 @@ $functions = array(
         'description' => 'Tutor online time',
         'type' => 'read'
     ),
+
     'monitor_ping' => array(
-        'classname' => 'local_monitor_ping',
+        'classname' => 'local_monitor_external',
         'methodname' => 'monitor_ping',
-        'classpath' => 'local/monitor/classes/ping',
+        'classpath' => 'local/monitor/classes/external',
         'description' => 'Checks the connection with Moodle',
         'type' => 'read'
     ),
+
     'monitor_tutor_answers' => array(
         'classname' => 'local_monitor_forum',
         'methodname' => 'get_tutor_forum_answers',

@@ -25,6 +25,15 @@
 
 $string['pluginname'] = 'Monitor';
 
+// General strings.
+$string['groupname'] = 'Group name';
+$string['discussionname'] = 'Discussion name';
+$string['tutorposts'] = 'Count of posts made by Tutor';
+$string['tutorpercent'] = 'Participation percent of Tutor';
+$string['tutorparticipation'] = 'Complete participation of Tutor';
+$string['studentsposts'] = 'Count of posts made by Students';
+$string['responsetime'] = 'Medium time to response';
+
 // Description strings.
 $string['paramtimebetweenclicks'] = 'Time between clicks ';
 $string['paramstartdate'] = 'Start date query: Y-m-d ';
@@ -35,6 +44,7 @@ $string['paramgroupid'] = 'Group ID';
 // Return strings.
 $string['returnid'] = 'Tutor ID from Moodle';
 $string['returnfullname'] = 'Tutor full name';
+$string['returncoursefullname'] = 'Course full name';
 $string['returnonlinetime'] = 'Online time in seconds';
 $string['returndate'] = 'Date';
 

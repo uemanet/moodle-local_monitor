@@ -16,8 +16,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('helper.php');
-
 /**
  * local_monitor_external class
  *
@@ -41,12 +39,15 @@ class local_monitor_forum extends external_api {
 
     /**
      * Returns forum tutor answers
-     * @param $pes_id
-     * @param $trm_id
+     * @param $pesid
+     * @param $trmid
      * @return array
+     * @throws Exception
+     * @throws dml_exception
+     * @throws invalid_parameter_exception
      */
     public static function get_tutor_forum_answers($pesid, $trmid) {
-        global $DB;
+        global $DB, $CFG;
 
         self::validate_parameters(
             self::get_tutor_forum_answers_parameters(), array(
@@ -122,6 +123,7 @@ class local_monitor_forum extends external_api {
             $horas = floor(($media - ($dias * 3600 * 24)) / 3600);
             $minutos = floor(($media - ($horas * 3600) - ($dias * 3600 * 24)) / 60);
             $segundos = floor($media % 60);
+
             if (!is_nan($media)) {
                 $tempo = $dias . 'd' . $horas . "h" . $minutos . "min";
             } else {
@@ -144,28 +146,47 @@ class local_monitor_forum extends external_api {
     }
 
     public static function make_tree_of_discussions($discussionid, $userid) {
-        global $DB;
+        global $DB, $CFG;
 
         $parameters = array(
             (int) $discussionid,
             $userid
         );
 
-        $posts = $DB->get_records_sql("SELECT id, parent, userid, created FROM {forum_posts}  WHERE discussion = ?", $parameters);
-        $poststutor = count($DB->get_records_sql("SELECT id, parent, userid FROM {forum_posts}  WHERE discussion = ? AND parent != 0 AND userid = ?", $parameters));
-        $postsstudents = count($DB->get_records_sql("SELECT id, parent, userid FROM {forum_posts}  WHERE discussion = ? and userid != ?", $parameters));
+        try {
+            $postssql = "SELECT id, parent, userid, created FROM {forum_posts}  WHERE discussion = ?";
+            $poststutorsql = "SELECT id, parent, userid FROM {forum_posts}  WHERE discussion = ? AND parent != 0 AND userid = ?";
+            $postsstudentssql = "SELECT id, parent, userid FROM {forum_posts}  WHERE discussion = ? and userid != ?";
 
-        foreach ($posts as $pid => $p) {
-            if (!$p->parent) {
-                continue;
+            $posts = $DB->get_records_sql($postssql, $parameters);
+            $poststutor = count($DB->get_records_sql($poststutorsql, $parameters));
+            $postsstudents = count($DB->get_records_sql($postsstudentssql, $parameters));
+
+            foreach ($posts as $pid => $p) {
+                if (!$p->parent) {
+                    continue;
+                }
+
+                if (!isset($posts[$p->parent])) {
+                    continue;
+                }
+
+                if (!isset($posts[$p->parent]->children)) {
+                    $posts[$p->parent]->children = array();
+                }
+
+                $posts[$p->parent]->children[$pid] =& $posts[$pid];
             }
-            if (!isset($posts[$p->parent])) {
-                continue;
+        } catch (\Exception $exception) {
+            if ($CFG->debug == DEBUG_DEVELOPER) {
+                throw $exception;
             }
-            if (!isset($posts[$p->parent]->children)) {
-                $posts[$p->parent]->children = array();
-            }
-            $posts[$p->parent]->children[$pid] =& $posts[$pid];
+
+            return new \external_warnings(
+                get_class($exception),
+                $exception->getCode(),
+                $exception->getMessage()
+            );
         }
 
         return $returndata = [
@@ -178,21 +199,52 @@ class local_monitor_forum extends external_api {
     /**
      * Returns description of get_tutor_forum_answers return values
      * @return external_function_parameters
+     * @throws coding_exception
      */
     public static function get_tutor_forum_answers_returns() {
         return new external_function_parameters(array(
-                'id' => new external_value(PARAM_INT, 'Id do tutor'),
-                'course' => new external_value(PARAM_TEXT, 'Nome completo do curso que o tutor está vinculado'),
+                'id' => new external_value(
+                    PARAM_INT,
+                    get_string('returnid', 'local_monitor')
+                ),
+                'course' => new external_value(
+                    PARAM_TEXT,
+                    get_string('returncoursefullname', 'local_monitor')
+                ),
                 'itens' => new external_multiple_structure(
                     new external_single_structure(array(
-                            'idgrupo' => new external_value(PARAM_TEXT, 'ID de Grupo da discussion.'),
-                            'grupo' => new external_value(PARAM_TEXT, 'Grupo da discussion.'),
-                            'discussion' => new external_value(PARAM_TEXT, 'Nome da discussion ao qual o tutor está vinculado.'),
-                            'poststutor' => new external_value(PARAM_TEXT, 'Quantidade de posts que o tutor fez em uma discussion'),
-                            'postsstudents' => new external_value(PARAM_TEXT, 'Quantidade de posts feitos pelos alunos em uma discussion'),
-                            'percentual' => new external_value(PARAM_TEXT, 'Percentual de respostas de um tutor em uma discussion'),
-                            'participacaototal' => new external_value(PARAM_TEXT, 'Participação completa do tutor em uma discussion'),
-                            'tempo' => new external_value(PARAM_TEXT, 'Tempo médio de respostas aos fóruns')
+                            'idgrupo' => new external_value(
+                                PARAM_TEXT,
+                                get_string('paramgroupid', 'local_monitor')
+                            ),
+                            'grupo' => new external_value(
+                                PARAM_TEXT,
+                                get_string('groupname', 'local_monitor')
+                            ),
+                            'discussion' => new external_value(
+                                PARAM_TEXT,
+                                get_string('discussionname', 'local_monitor')
+                            ),
+                            'poststutor' => new external_value(
+                                PARAM_INT,
+                                get_string('tutorposts', 'local_monitor')
+                            ),
+                            'postsstudents' => new external_value(
+                                PARAM_TEXT,
+                                get_string('studentsposts', 'local_monitor')
+                            ),
+                            'percentual' => new external_value(
+                                PARAM_TEXT,
+                                get_string('tutorpercent', 'local_monitor')
+                            ),
+                            'participacaototal' => new external_value(
+                                PARAM_TEXT,
+                                get_string('tutorparticipation', 'local_monitor')
+                            ),
+                            'tempo' => new external_value(
+                                PARAM_TEXT,
+                                get_string('responsetime', 'local_monitor')
+                            )
                         )
                     )
                 )

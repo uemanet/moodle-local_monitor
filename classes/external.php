@@ -16,8 +16,6 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once('helper.php');
-
 /**
  * local_monitor_external class
  *
@@ -88,11 +86,34 @@ class local_monitor_external extends external_api {
     public static function get_online_time_parameters() {
         $default = self::get_online_time_default_parameters();
 
+        $timebetweenclicks = $default['timebetweenclicks'];
+        $startdate = $default['startdate'];
+        $enddate = $default['enddate'];
+
         return new external_function_parameters(array(
-            'timebetweenclicks' => new external_value(PARAM_INT, get_string('paramtimebetweenclicks', 'local_monitor'), VALUE_DEFAULT, $default['timebetweenclicks']),
-            'startdate' => new external_value(PARAM_TEXT, get_string('paramstartdate', 'local_monitor'), VALUE_DEFAULT, $default['startdate']),
-            'enddate' => new external_value(PARAM_TEXT, get_string('paramenddate', 'local_monitor'), 'Data de fim da consulta: dd-mm-YYYY', VALUE_DEFAULT, $default['enddate']),
-            'pesid' => new external_value(PARAM_INT, get_string('paramtutorid', 'local_monitor'), 'ID do Tutor', VALUE_DEFAULT)
+            'timebetweenclicks' => new external_value(
+                PARAM_INT,
+                get_string('paramtimebetweenclicks', 'local_monitor'),
+                VALUE_DEFAULT,
+                $timebetweenclicks
+            ),
+            'startdate' => new external_value(
+                PARAM_TEXT,
+                get_string('paramstartdate', 'local_monitor'),
+                VALUE_DEFAULT,
+                $startdate
+            ),
+            'enddate' => new external_value(
+                PARAM_TEXT,
+                get_string('paramenddate', 'local_monitor'),
+                VALUE_DEFAULT,
+                $enddate
+            ),
+            'pesid' => new external_value(
+                PARAM_INT,
+                get_string('paramtutorid', 'local_monitor'),
+                VALUE_REQUIRED
+            )
         ));
     }
 
@@ -102,11 +123,11 @@ class local_monitor_external extends external_api {
      * @param $startdate
      * @param $enddate
      * @param $tutorid
-     * @return array
+     * @return mixed
      * @throws Exception
      */
     public static function get_online_time($timebetweenclicks, $startdate, $enddate, $tutorid) {
-        global $DB;
+        global $DB, $CFG;
 
         self::validate_parameters(self::get_online_time_parameters(), array(
             'time_between_clicks' => $timebetweenclicks,
@@ -175,13 +196,18 @@ class local_monitor_external extends external_api {
                 $result['items'][] = array('onlinetime' => $onlinetime, 'date' => $date->format("d-m-Y"));
             }
 
-        } catch (\Exception $e) {
-            if (helper::debug()) {
-                throw $e;
+            return $result;
+        } catch (\Exception $exception) {
+            if ($CFG->debug == DEBUG_DEVELOPER) {
+                throw $exception;
             }
-        }
 
-        return $result;
+            return new \external_warnings(
+                get_class($exception),
+                $exception->getCode(),
+                $exception->getMessage()
+            );
+        }
     }
 
     /**
@@ -201,5 +227,33 @@ class local_monitor_external extends external_api {
                     ))
             )
         );
+    }
+
+    /**
+     * Returns description of ping parameters
+     * @return external_function_parameters
+     */
+    public static function monitor_ping_parameters() {
+        return new external_function_parameters([]);
+    }
+
+    /**
+     * Ping function
+     * @return array
+     */
+    public static function monitor_ping() {
+        return array(
+            'response' => true
+        );
+    }
+
+    /**
+     * Returns description of ping return values
+     * @return external_function_parameters
+     */
+    public static function monitor_ping_returns() {
+        return new external_function_parameters(array(
+            'response' => new external_value(PARAM_BOOL, 'Default response')
+        ));
     }
 }
