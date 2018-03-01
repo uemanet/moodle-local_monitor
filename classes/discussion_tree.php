@@ -69,6 +69,11 @@ class discussion_tree {
     protected $postsanswered = 0;
 
     /**
+     * @var int Posts answered by user
+     */
+    protected $usersanswered = 0;
+
+    /**
      * discussion_tree constructor.
      * @param $discussionid
      * @param $userid
@@ -94,7 +99,7 @@ class discussion_tree {
      * @return float
      */
     public function user_answer_rate() {
-        return (float) number_format($this->postsanswered / $this->everyoneelsecount, 2);
+        return (float) number_format($this->postsanswered / $this->usersanswered, 2);
     }
 
     public function get_analitycs() {
@@ -123,15 +128,18 @@ class discussion_tree {
             }
 
             foreach ($post->children as $value) {
-                if ($value->userid == $this->userid) {
-                    $responsetimesum = $responsetimesum + $value->created - $post->created;
-                    $postsanswered++;
-                    $useranswered++;
-                    break;
+                if ($value->userid != $this->userid) {
+                    continue;
                 }
+
+                $responsetimesum = $responsetimesum + $value->created - $post->created;
+                $postsanswered++;
+                $useranswered++;
+                break;
             }
         }
 
+        $this->usersanswered = $useranswered;
         $this->postsanswered = $postsanswered;
         $media = (int)($responsetimesum / $postsanswered);
 
