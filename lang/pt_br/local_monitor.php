@@ -56,3 +56,8 @@ $string['startdateerror'] = 'Data de início deve ser anterior à data de fim';
 $string['enddateerror'] = 'Data de fim deve ser igual ou anterior à data atual';
 $string['databaseaccesserror'] = 'Erro ao acessar o banco de dados';
 $string['tutornonexistserror'] = 'O pes_id não corresponde a nenhum Tutor conhecido';
+
+// Endpoint descriptions.
+$string['functiongettutoronlinetime'] = 'Tempo online do Tutor';
+$string['functionping'] = 'Verifica a conexão com o Moodle';
+$string['functiontutoransweres'] = 'Analíticas das respostas do Tutor aos fóruns';

@@ -57,3 +57,8 @@ $string['startdateerror'] = 'Start date should be less than end date';
 $string['enddateerror'] = 'End date should be equals to or less than today date';
 $string['databaseaccesserror'] = 'Error on trying access database';
 $string['tutornonexistserror'] = 'The pes_id given do not match with an know tutor';
+
+// Endpoint descriptions.
+$string['functiongettutoronlinetime'] = 'Tutor online time';
+$string['functionping'] = 'Checks the connection with Moodle';
+$string['functiontutoransweres'] = 'Get tutor answers to foruns';

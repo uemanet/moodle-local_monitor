@@ -25,34 +25,34 @@ defined('MOODLE_INTERNAL') || die();
  * @author Lucas S. Vieira <lucassouzavieiraengcomp@gmail.com>
  */
 $functions = array(
-    'get_tutor_online_time' => array(
+    'local_monitor_get_tutor_online_time' => array(
         'classname' => 'local_monitor_external',
         'methodname' => 'get_online_time',
         'classpath' => 'local/monitor/classes/external',
-        'description' => 'Tutor online time',
+        'description' => get_string('functiongettutoronlinetime', 'local_monitor'),
         'type' => 'read'
     ),
 
-    'monitor_ping' => array(
+    'local_monitor_ping' => array(
         'classname' => 'local_monitor_external',
         'methodname' => 'monitor_ping',
         'classpath' => 'local/monitor/classes/external',
-        'description' => 'Checks the connection with Moodle',
+        'description' => get_string('functionping', 'local_monitor'),
         'type' => 'read'
     ),
 
-    'monitor_tutor_answers' => array(
+    'local_monitor_tutor_answers' => array(
         'classname' => 'local_monitor_external',
         'methodname' => 'get_tutor_forum_answers',
         'classpath' => 'local/monitor/classes/external',
-        'description' => 'Get tutor answers to foruns',
+        'description' => get_string('functiontutoransweres', 'local_monitor'),
         'type' => 'read'
     )
 );
 
 $services = array(
     'Monitor' => array(
-        'functions' => array('get_tutor_online_time', 'monitor_ping', 'monitor_tutor_answers'),
+        'functions' => array('local_monitor_get_tutor_online_time', 'local_monitor_ping', 'local_monitor_tutor_answers'),
         'restrictedusers' => 0,
         'enabled' => 1
     )
