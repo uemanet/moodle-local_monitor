@@ -14,9 +14,10 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace local_monitor;
-
 defined('MOODLE_INTERNAL') || die();
+
+global $CFG;
+require_once($CFG->libdir . "/externallib.php");
 
 /**
  * local_monitor_external class
@@ -219,10 +220,10 @@ class local_monitor_external extends \external_api {
      */
     public static function get_online_time_returns() {
         return new \external_function_parameters(array(
-            'id' => new \external_value(PARAM_INT, get_string('return_id', 'local_monitor')),
-            'fullname' => new \external_value(PARAM_TEXT, get_string('return_fullname', 'local_monitor')),
-            'items' => new \external_multiple_structure(
-                        new \external_single_structure(array(
+                'id' => new \external_value(PARAM_INT, get_string('return_id', 'local_monitor')),
+                'fullname' => new \external_value(PARAM_TEXT, get_string('return_fullname', 'local_monitor')),
+                'items' => new \external_multiple_structure(
+                    new \external_single_structure(array(
                             'onlinetime' => new \external_value(PARAM_TEXT, get_string('return_onlinetime', 'local_monitor')),
                             'date' => new \external_value(PARAM_TEXT, get_string('return_date', 'local_monitor'))
                         )
@@ -396,7 +397,7 @@ class local_monitor_external extends \external_api {
                             )
                         )
                     )
-                )
+                ) // Itens.
             )
         );
     }
