@@ -153,7 +153,7 @@ class local_monitor_external extends \external_api {
             $tutorgrupo = $DB->get_record('int_pessoa_user', array('pes_id' => $tutorid));
 
             if (!$tutorgrupo) {
-                throw new moodle_exception('tutornonexistserror', 'local_monitor', null, null, '');
+                throw new \moodle_exception('tutornonexistserror', 'local_monitor', null, null, '');
             }
 
             $tutor = $DB->get_record('user', array('id' => $tutorgrupo->userid));
@@ -257,5 +257,147 @@ class local_monitor_external extends \external_api {
         return new \external_function_parameters(array(
             'response' => new \external_value(PARAM_BOOL, 'Default response')
         ));
+    }
+
+    /**
+     * Returns description of get_tutor_forum_answers parameters
+     * @return \external_function_parameters
+     * @throws \coding_exception
+     */
+    public static function get_tutor_forum_answers_parameters() {
+        return new \external_function_parameters(array(
+            'pes_id' => new \external_value(PARAM_INT, get_string('paramgroupid', 'local_monitor')),
+            'trm_id' => new \external_value(PARAM_INT, get_string('paramgroupid', 'local_monitor'))
+        ));
+    }
+
+    /**
+     * Returns forum tutor answers
+     * @param $pesid
+     * @param $trmid
+     * @return array
+     * @throws \Exception
+     * @throws \dml_exception
+     * @throws \invalid_parameter_exception
+     */
+    public static function get_tutor_forum_answers($pesid, $trmid) {
+        global $DB, $CFG;
+
+        self::validate_parameters(
+            self::get_tutor_forum_answers_parameters(), array(
+            'pes_id' => $pesid,
+            'trm_id' => $trmid
+        ));
+
+        $userdata = $DB->get_record('int_tutor_group', array('pes_id' => $pesid), '*');
+        $userid = $userdata->userid;
+
+        if (!$userid) {
+            throw new \Exception("O tutor de pes_id: " . $pesid . " não está mapeado no ambiente virtual.");
+        }
+
+        $datacourse = $DB->get_record('int_turma_course', array('trm_id' => $trmid), '*');
+        $courseid = $datacourse->courseid;
+
+        if (!$courseid) {
+            throw new \Exception("A turma com id: " . $trmid . " não está mapeada com o ambiente virtual.");
+        }
+
+        $course = $DB->get_record('course', array('id' => $courseid), '*');
+
+        $returndata = [];
+
+        $parameters = array(
+            $userid,
+            $courseid
+        );
+
+        $returndata['id'] = $userid;
+        $returndata['course'] = $course->fullname;
+        $returndata['itens'] = [];
+
+        // Receive all discussions for an given course.
+        $query = "SELECT {forum_discussions}.*, {groups}.id as groupid ,{groups}.name as groupname
+                    FROM {forum_discussions}
+                    INNER JOIN {groups}
+                    ON {groups}.id = {forum_discussions}.groupid
+                    WHERE userid = ? and course = ?
+                    ORDER BY groupname, {forum_discussions}.name";
+
+        $discussions = $DB->get_records_sql($query, $parameters);
+
+        foreach ($discussions as $key => $discussion) {
+            $tree = new \local_monitor\discussion_tree($discussion->id, $userid);
+            $data = $tree->get_analitycs();
+
+            $returndata['itens'][] = array(
+                'idgrupo' => $discussion->groupid,
+                'grupo' => $discussion->groupname,
+                'discussion' => $discussion->name,
+                'postsstudents' => $data['everyoneelseposts'],
+                'poststutor' => $data['userposts'],
+                'participacaototal' => $tree->user_participation(),
+                'percentual' => $tree->user_answer_rate(),
+                'tempo' => $data['mediumresponsetime']
+            );
+        }
+
+        return $returndata;
+    }
+
+    /**
+     * Returns description of get_tutor_forum_answers return values
+     * @return \external_function_parameters
+     * @throws \coding_exception
+     */
+    public static function get_tutor_forum_answers_returns() {
+        return new \external_function_parameters(array(
+                'id' => new \external_value(
+                    PARAM_INT,
+                    get_string('returnid', 'local_monitor')
+                ),
+                'course' => new \external_value(
+                    PARAM_TEXT,
+                    get_string('returncoursefullname', 'local_monitor')
+                ),
+                'itens' => new \external_multiple_structure(
+                    new \external_single_structure(array(
+                            'idgrupo' => new \external_value(
+                                PARAM_TEXT,
+                                get_string('paramgroupid', 'local_monitor')
+                            ),
+                            'grupo' => new \external_value(
+                                PARAM_TEXT,
+                                get_string('groupname', 'local_monitor')
+                            ),
+                            'discussion' => new \external_value(
+                                PARAM_TEXT,
+                                get_string('discussionname', 'local_monitor')
+                            ),
+                            'poststutor' => new \external_value(
+                                PARAM_INT,
+                                get_string('tutorposts', 'local_monitor')
+                            ),
+                            'postsstudents' => new \external_value(
+                                PARAM_TEXT,
+                                get_string('studentsposts', 'local_monitor')
+                            ),
+                            'percentual' => new \external_value(
+                                PARAM_TEXT,
+                                get_string('tutorpercent', 'local_monitor')
+                            ),
+                            'participacaototal' => new \external_value(
+                                PARAM_TEXT,
+                                get_string('tutorparticipation', 'local_monitor')
+                            ),
+                            'tempo' => new \external_value(
+                                PARAM_TEXT,
+                                get_string('responsetime', 'local_monitor')
+                            )
+                        )
+                    )
+                )
+            )
+        );
     }
 }

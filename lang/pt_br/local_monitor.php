@@ -40,6 +40,8 @@ $string['paramstartdate'] = 'Data de início da consulta: Y-m-d ';
 $string['paramend_date'] = 'Data final da consulta: Y-m-d ';
 $string['paramtutorid'] = 'ID do Tutor';
 $string['paramgroupid'] = 'ID do Grupo';
+$string['parampesid'] = 'ID da Pessoa';
+$string['paramtrmid'] = 'ID da Turma';
 
 // Return strings.
 $string['returnid'] = 'ID do Tutor no Moodle';

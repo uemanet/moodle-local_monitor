@@ -64,6 +64,11 @@ class discussion_tree {
     protected $mediumresponsetime = "";
 
     /**
+     * @var int Posts answered by user
+     */
+    protected $postsanswered = 0;
+
+    /**
      * discussion_tree constructor.
      * @param $discussionid
      * @param $userid
@@ -81,7 +86,15 @@ class discussion_tree {
      * @return float
      */
     public function user_participation() {
-        return (float)number_format($this->usercount / $this->everyoneelsecount, 2);
+        return (float) number_format($this->usercount / $this->everyoneelsecount, 2);
+    }
+
+    /**
+     * Percent of user answers
+     * @return float
+     */
+    public function user_answer_rate() {
+        return (float) number_format($this->postsanswered / $this->everyoneelsecount, 2);
     }
 
     public function get_analitycs() {
@@ -119,6 +132,7 @@ class discussion_tree {
             }
         }
 
+        $this->postsanswered = $postsanswered;
         $media = (int)($responsetimesum / $postsanswered);
 
         if ($media) {
@@ -160,20 +174,20 @@ class discussion_tree {
             $this->usercount = count($DB->get_records_sql($poststutorsql, $parameters));
             $this->everyoneelsecount = count($DB->get_records_sql($postsstudentssql, $parameters));
 
-            foreach ($posts as $pid => $p) {
-                if (!$p->parent) {
+            foreach ($posts as $pid => $post) {
+                if (!$post->parent) {
                     continue;
                 }
 
-                if (!isset($posts[$p->parent])) {
+                if (!isset($posts[$post->parent])) {
                     continue;
                 }
 
-                if (!isset($posts[$p->parent]->children)) {
-                    $posts[$p->parent]->children = array();
+                if (!isset($posts[$post->parent]->children)) {
+                    $posts[$post->parent]->children = array();
                 }
 
-                $posts[$p->parent]->children[$pid] =& $posts[$pid];
+                $posts[$post->parent]->children[$pid] =& $posts[$pid];
             }
 
             $this->tree = $posts;

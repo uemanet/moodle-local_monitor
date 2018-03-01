@@ -40,6 +40,9 @@ $string['paramstartdate'] = 'Start date query: Y-m-d ';
 $string['paramend_date'] = 'End date query: Y-m-d ';
 $string['paramtutorid'] = 'Tutor ID';
 $string['paramgroupid'] = 'Group ID';
+$string['parampesid'] = 'Person ID';
+$string['paramtrmid'] = 'Class ID';
+
 
 // Return strings.
 $string['returnid'] = 'Tutor ID from Moodle';

@@ -42,9 +42,9 @@ $functions = array(
     ),
 
     'monitor_tutor_answers' => array(
-        'classname' => 'local_monitor_forum',
+        'classname' => 'local_monitor_external',
         'methodname' => 'get_tutor_forum_answers',
-        'classpath' => 'local/monitor/classes/forum',
+        'classpath' => 'local/monitor/classes/external',
         'description' => 'Get tutor answers to foruns',
         'type' => 'read'
     )
