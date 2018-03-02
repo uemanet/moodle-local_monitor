@@ -294,14 +294,14 @@ class local_monitor_external extends \external_api {
         $userid = $userdata->userid;
 
         if (!$userid) {
-            throw new \Exception("O tutor de pes_id: " . $pesid . " não está mapeado no ambiente virtual.");
+            throw new \Exception(get_string('tutornonexists', 'local_monitor', $pesid));
         }
 
         $datacourse = $DB->get_record('int_turma_course', array('trm_id' => $trmid), '*');
         $courseid = $datacourse->courseid;
 
         if (!$courseid) {
-            throw new \Exception("A turma com id: " . $trmid . " não está mapeada com o ambiente virtual.");
+            throw new \Exception(get_string('classnonexist', 'local_monitor', $trmid));
         }
 
         $course = $DB->get_record('course', array('id' => $courseid), '*');

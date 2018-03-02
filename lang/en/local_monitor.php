@@ -43,7 +43,6 @@ $string['paramgroupid'] = 'Group ID';
 $string['parampesid'] = 'Person ID';
 $string['paramtrmid'] = 'Class ID';
 
-
 // Return strings.
 $string['returnid'] = 'Tutor ID from Moodle';
 $string['returnfullname'] = 'Tutor full name';
@@ -57,6 +56,9 @@ $string['startdateerror'] = 'Start date should be less than end date';
 $string['enddateerror'] = 'End date should be equals to or less than today date';
 $string['databaseaccesserror'] = 'Error on trying access database';
 $string['tutornonexistserror'] = 'The pes_id given do not match with an know tutor';
+
+$string['classnonexists'] = "The class with ID: {$a} is not mapped with this environment ";
+$string['tutornonexists'] = "The tutor with ID: {$a} is not mapped with this environment ";
 
 // Endpoint descriptions.
 $string['functiongettutoronlinetime'] = 'Tutor online time';
