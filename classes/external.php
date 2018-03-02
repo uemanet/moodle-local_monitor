@@ -133,10 +133,10 @@ class local_monitor_external extends \external_api {
         global $DB, $CFG;
 
         self::validate_parameters(self::get_online_time_parameters(), array(
-            'time_between_clicks' => $timebetweenclicks,
-            'start_date' => $startdate,
-            'end_date' => $enddate,
-            'pes_id' => $tutorid
+            'timebetweenclicks' => $timebetweenclicks,
+            'startdate' => $startdate,
+            'enddate' => $enddate,
+            'pesid' => $tutorid
         ));
 
         self::get_online_time_validate_rules($timebetweenclicks, $startdate, $enddate);

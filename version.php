@@ -23,8 +23,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2018300307;
-$plugin->requires = 2013062000;
+$plugin->version = 2018300310;
+$plugin->requires = 2015010100;
 $plugin->release = '0.1.1';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->component = 'local_monitor';
