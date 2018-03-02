@@ -99,7 +99,7 @@ class discussion_tree {
      * @return float
      */
     public function user_answer_rate() {
-        return (float) number_format($this->postsanswered / $this->usersanswered, 2);
+        return (float) number_format($this->usersanswered / $this->postsanswered, 2);
     }
 
     public function get_analitycs() {
@@ -127,13 +127,13 @@ class discussion_tree {
                 continue;
             }
 
+            $postsanswered++;
             foreach ($post->children as $value) {
                 if ($value->userid != $this->userid) {
                     continue;
                 }
 
                 $responsetimesum = $responsetimesum + $value->created - $post->created;
-                $postsanswered++;
                 $useranswered++;
                 break;
             }
