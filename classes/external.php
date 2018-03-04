@@ -220,12 +220,12 @@ class local_monitor_external extends \external_api {
      */
     public static function get_online_time_returns() {
         return new \external_function_parameters(array(
-                'id' => new \external_value(PARAM_INT, get_string('return_id', 'local_monitor')),
-                'fullname' => new \external_value(PARAM_TEXT, get_string('return_fullname', 'local_monitor')),
+                'id' => new \external_value(PARAM_INT, get_string('returnid', 'local_monitor')),
+                'fullname' => new \external_value(PARAM_TEXT, get_string('returnfullname', 'local_monitor')),
                 'items' => new \external_multiple_structure(
                     new \external_single_structure(array(
-                            'onlinetime' => new \external_value(PARAM_TEXT, get_string('return_onlinetime', 'local_monitor')),
-                            'date' => new \external_value(PARAM_TEXT, get_string('return_date', 'local_monitor'))
+                            'onlinetime' => new \external_value(PARAM_TEXT, get_string('returnonlinetime', 'local_monitor')),
+                            'date' => new \external_value(PARAM_TEXT, get_string('returndate', 'local_monitor'))
                         )
                     ))
             )
@@ -267,8 +267,8 @@ class local_monitor_external extends \external_api {
      */
     public static function get_tutor_forum_answers_parameters() {
         return new \external_function_parameters(array(
-            'pes_id' => new \external_value(PARAM_INT, get_string('paramgroupid', 'local_monitor')),
-            'trm_id' => new \external_value(PARAM_INT, get_string('paramgroupid', 'local_monitor'))
+            'pesid' => new \external_value(PARAM_INT, get_string('parampesid', 'local_monitor')),
+            'trmid' => new \external_value(PARAM_INT, get_string('paramgroupid', 'local_monitor'))
         ));
     }
 
@@ -286,8 +286,8 @@ class local_monitor_external extends \external_api {
 
         self::validate_parameters(
             self::get_tutor_forum_answers_parameters(), array(
-            'pes_id' => $pesid,
-            'trm_id' => $trmid
+            'pesid' => $pesid,
+            'trmid' => $trmid
         ));
 
         $userdata = $DB->get_record('int_tutor_group', array('pes_id' => $pesid), '*');
@@ -332,14 +332,14 @@ class local_monitor_external extends \external_api {
             $data = $tree->get_analitycs();
 
             $returndata['itens'][] = array(
-                'idgrupo' => $discussion->groupid,
-                'grupo' => $discussion->groupname,
+                'groupid' => $discussion->groupid,
+                'grupname' => $discussion->groupname,
                 'discussion' => $discussion->name,
                 'postsstudents' => $data['everyoneelseposts'],
                 'poststutor' => $data['userposts'],
-                'participacaototal' => $tree->user_participation(),
-                'percentual' => $tree->user_answer_rate(),
-                'tempo' => $data['mediumresponsetime']
+                'userparticipation' => $tree->user_participation(),
+                'percent' => $tree->user_answer_rate(),
+                'mediumresponsetime' => $data['mediumresponsetime']
             );
         }
 
@@ -363,11 +363,11 @@ class local_monitor_external extends \external_api {
                 ),
                 'itens' => new \external_multiple_structure(
                     new \external_single_structure(array(
-                            'idgrupo' => new \external_value(
+                            'groupid' => new \external_value(
                                 PARAM_TEXT,
                                 get_string('paramgroupid', 'local_monitor')
                             ),
-                            'grupo' => new \external_value(
+                            'grupname' => new \external_value(
                                 PARAM_TEXT,
                                 get_string('groupname', 'local_monitor')
                             ),
@@ -375,23 +375,23 @@ class local_monitor_external extends \external_api {
                                 PARAM_TEXT,
                                 get_string('discussionname', 'local_monitor')
                             ),
-                            'poststutor' => new \external_value(
+                            'tutorposts' => new \external_value(
                                 PARAM_INT,
                                 get_string('tutorposts', 'local_monitor')
                             ),
-                            'postsstudents' => new \external_value(
+                            'studentsposts' => new \external_value(
                                 PARAM_TEXT,
                                 get_string('studentsposts', 'local_monitor')
                             ),
-                            'percentual' => new \external_value(
+                            'percent' => new \external_value(
                                 PARAM_TEXT,
                                 get_string('tutorpercent', 'local_monitor')
                             ),
-                            'participacaototal' => new \external_value(
+                            'userparticipation' => new \external_value(
                                 PARAM_TEXT,
                                 get_string('tutorparticipation', 'local_monitor')
                             ),
-                            'tempo' => new \external_value(
+                            'mediumresponsetime' => new \external_value(
                                 PARAM_TEXT,
                                 get_string('responsetime', 'local_monitor')
                             )
