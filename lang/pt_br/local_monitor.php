@@ -57,8 +57,8 @@ $string['enddateerror'] = 'Data de fim deve ser igual ou anterior à data atual'
 $string['databaseaccesserror'] = 'Erro ao acessar o banco de dados';
 $string['tutornonexistserror'] = 'O pes_id não corresponde a nenhum Tutor conhecido';
 
-$string['classnonexists'] = 'The class with ID: {$a} is not mapped with this environment';
-$string['tutornonexists'] = 'The tutor with ID: {$a} is not mapped with this environment';
+$string['classnonexists'] = 'A turma com o ID: {$a} não está mapeada com este ambiente';
+$string['tutornonexists'] = 'O tutor com o ID: {$a} não está mapeada com este ambiente';
 
 // Endpoint descriptions.
 $string['functiongettutoronlinetime'] = 'Tempo online do Tutor';
