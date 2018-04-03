@@ -335,8 +335,8 @@ class local_monitor_external extends \external_api {
                 'groupid' => $discussion->groupid,
                 'grupname' => $discussion->groupname,
                 'discussion' => $discussion->name,
-                'postsstudents' => $data['everyoneelseposts'],
-                'poststutor' => $data['userposts'],
+                'studentsposts' => $data['everyoneelseposts'],
+                'tutorposts' => $data['userposts'],
                 'userparticipation' => $tree->user_participation(),
                 'percent' => $tree->user_answer_rate(),
                 'mediumresponsetime' => $data['mediumresponsetime']
