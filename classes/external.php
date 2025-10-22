@@ -14,10 +14,16 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-defined('MOODLE_INTERNAL') || die();
+namespace local_monitor;
 
-global $CFG;
-require_once($CFG->libdir . "/externallib.php");
+use core_external\external_api;
+use core_external\external_function_parameters;
+use core_external\external_single_structure;
+use core_external\external_multiple_structure;
+use core_external\external_value;
+use core_external\external_warnings;
+use core\exception\moodle_exception;
+use core_date;
 
 /**
  * local_monitor_external class
@@ -27,7 +33,7 @@ require_once($CFG->libdir . "/externallib.php");
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author Lucas S. Vieira <lucassouzavieiraengcomp@gmail.com>
  */
-class local_monitor_external extends \external_api {
+class local_monitor_external extends external_api {
     private static $day = 60 * 60 * 24;
 
     /**
@@ -36,8 +42,8 @@ class local_monitor_external extends \external_api {
      * @throws \Exception
      */
     private static function get_online_time_default_parameters() {
-        $startdate = new \DateTime("NOW", \core_date::get_server_timezone_object());
-        $enddate = new \DateTime("NOW", \core_date::get_server_timezone_object());
+        $startdate = new \DateTime("NOW", core_date::get_server_timezone_object());
+        $enddate = new \DateTime("NOW", core_date::get_server_timezone_object());
 
         $enddate->add(new \DateInterval('P7D'));
 
@@ -54,27 +60,27 @@ class local_monitor_external extends \external_api {
      * @param $startdate
      * @param $enddate
      * @return bool
-     * @throws \moodle_exception
+     * @throws moodle_exception
      */
     private static function get_online_time_validate_rules($timebetweenclicks, $startdate, $enddate) {
-        $startdate = new \DateTime($startdate, \core_date::get_server_timezone_object());
-        $enddate = new \DateTime($enddate, \core_date::get_server_timezone_object());
+        $startdate = new \DateTime($startdate, core_date::get_server_timezone_object());
+        $enddate = new \DateTime($enddate, core_date::get_server_timezone_object());
 
-        $now = new \DateTime("NOW", \core_date::get_server_timezone_object());
+        $now = new \DateTime("NOW", core_date::get_server_timezone_object());
 
         $start = $startdate->getTimestamp();
         $end = $enddate->getTimestamp();
 
         if (!($timebetweenclicks > 0)) {
-            throw new \moodle_exception('timebetweenclickserror', 'local_monitor', null, null, '');
+            throw new moodle_exception('timebetweenclickserror', 'local_monitor', null, null, '');
         }
 
         if ($start > $end) {
-            throw new \moodle_exception('startdateerror', 'local_monitor', null, null, '');
+            throw new moodle_exception('startdateerror', 'local_monitor', null, null, '');
         }
 
         if ($end >= $now->getTimestamp()) {
-            throw new \moodle_exception('enddateerror', 'local_monitor', null, null, '');
+            throw new moodle_exception('enddateerror', 'local_monitor', null, null, '');
         }
 
         return true;
@@ -82,8 +88,8 @@ class local_monitor_external extends \external_api {
 
     /**
      * Returns description of get_online_time parameters
-     * @return \external_function_parameters
-     * @throws \moodle_exception
+     * @return external_function_parameters
+     * @throws moodle_exception
      * @throws \Exception
      */
     public static function get_online_time_parameters() {
@@ -93,26 +99,26 @@ class local_monitor_external extends \external_api {
         $startdate = $default['startdate'];
         $enddate = $default['enddate'];
 
-        return new \external_function_parameters(array(
-            'timebetweenclicks' => new \external_value(
+        return new external_function_parameters(array(
+            'timebetweenclicks' => new external_value(
                 PARAM_INT,
                 get_string('paramtimebetweenclicks', 'local_monitor'),
                 VALUE_DEFAULT,
                 $timebetweenclicks
             ),
-            'startdate' => new \external_value(
+            'startdate' => new external_value(
                 PARAM_TEXT,
                 get_string('paramstartdate', 'local_monitor'),
                 VALUE_DEFAULT,
                 $startdate
             ),
-            'enddate' => new \external_value(
+            'enddate' => new external_value(
                 PARAM_TEXT,
                 get_string('paramenddate', 'local_monitor'),
                 VALUE_DEFAULT,
                 $enddate
             ),
-            'pesid' => new \external_value(
+            'pesid' => new external_value(
                 PARAM_INT,
                 get_string('paramtutorid', 'local_monitor'),
                 VALUE_REQUIRED
@@ -141,8 +147,8 @@ class local_monitor_external extends \external_api {
 
         self::get_online_time_validate_rules($timebetweenclicks, $startdate, $enddate);
 
-        $start = new \DateTime($startdate, \core_date::get_server_timezone_object());
-        $end = new \DateTime($enddate, \core_date::get_server_timezone_object());
+        $start = new \DateTime($startdate, core_date::get_server_timezone_object());
+        $end = new \DateTime($enddate, core_date::get_server_timezone_object());
 
         $start = $start->getTimestamp();
         $end = $end->getTimestamp() + self::$day;
@@ -154,7 +160,7 @@ class local_monitor_external extends \external_api {
             $tutorgrupo = $DB->get_record('int_pessoa_user', array('pes_id' => $tutorid));
 
             if (!$tutorgrupo) {
-                throw new \moodle_exception('tutornonexistserror', 'local_monitor', null, null, '');
+                throw new moodle_exception('tutornonexistserror', 'local_monitor', null, null, '');
             }
 
             $tutor = $DB->get_record('user', array('id' => $tutorgrupo->userid));
@@ -179,7 +185,7 @@ class local_monitor_external extends \external_api {
                 // Get user logs.
                 $logs = $DB->get_records_sql($query, $parameters);
 
-                $date = new \DateTime("NOW", \core_date::get_server_timezone_object());
+                $date = new \DateTime("NOW", core_date::get_server_timezone_object());
                 $date->setTimestamp($end - (self::$day * $i));
 
                 $previouslog = array_shift($logs);
@@ -205,7 +211,7 @@ class local_monitor_external extends \external_api {
                 throw $exception;
             }
 
-            return new \external_warnings(
+            return new external_warnings(
                 get_class($exception),
                 $exception->getCode(),
                 $exception->getMessage()
@@ -215,17 +221,17 @@ class local_monitor_external extends \external_api {
 
     /**
      * Returns description of get_online_time return values
-     * @return \external_function_parameters
+     * @return external_function_parameters
      * @throws \coding_exception
      */
     public static function get_online_time_returns() {
-        return new \external_function_parameters(array(
-                'id' => new \external_value(PARAM_INT, get_string('returnid', 'local_monitor')),
-                'fullname' => new \external_value(PARAM_TEXT, get_string('returnfullname', 'local_monitor')),
-                'items' => new \external_multiple_structure(
-                    new \external_single_structure(array(
-                            'onlinetime' => new \external_value(PARAM_TEXT, get_string('returnonlinetime', 'local_monitor')),
-                            'date' => new \external_value(PARAM_TEXT, get_string('returndate', 'local_monitor'))
+        return new external_function_parameters(array(
+                'id' => new external_value(PARAM_INT, get_string('returnid', 'local_monitor')),
+                'fullname' => new external_value(PARAM_TEXT, get_string('returnfullname', 'local_monitor')),
+                'items' => new external_multiple_structure(
+                    new external_single_structure(array(
+                            'onlinetime' => new external_value(PARAM_TEXT, get_string('returnonlinetime', 'local_monitor')),
+                            'date' => new external_value(PARAM_TEXT, get_string('returndate', 'local_monitor'))
                         )
                     ))
             )
@@ -234,10 +240,10 @@ class local_monitor_external extends \external_api {
 
     /**
      * Returns description of ping parameters
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
     public static function monitor_ping_parameters() {
-        return new \external_function_parameters([]);
+        return new external_function_parameters([]);
     }
 
     /**
@@ -252,23 +258,23 @@ class local_monitor_external extends \external_api {
 
     /**
      * Returns description of ping return values
-     * @return \external_function_parameters
+     * @return external_function_parameters
      */
     public static function monitor_ping_returns() {
-        return new \external_function_parameters(array(
-            'response' => new \external_value(PARAM_BOOL, 'Default response')
+        return new external_function_parameters(array(
+            'response' => new external_value(PARAM_BOOL, 'Default response')
         ));
     }
 
     /**
      * Returns description of get_tutor_forum_answers parameters
-     * @return \external_function_parameters
+     * @return external_function_parameters
      * @throws \coding_exception
      */
     public static function get_tutor_forum_answers_parameters() {
-        return new \external_function_parameters(array(
-            'pesid' => new \external_value(PARAM_INT, get_string('parampesid', 'local_monitor')),
-            'trmid' => new \external_value(PARAM_INT, get_string('paramgroupid', 'local_monitor'))
+        return new external_function_parameters(array(
+            'pesid' => new external_value(PARAM_INT, get_string('parampesid', 'local_monitor')),
+            'trmid' => new external_value(PARAM_INT, get_string('paramgroupid', 'local_monitor'))
         ));
     }
 
@@ -348,50 +354,50 @@ class local_monitor_external extends \external_api {
 
     /**
      * Returns description of get_tutor_forum_answers return values
-     * @return \external_function_parameters
+     * @return external_function_parameters
      * @throws \coding_exception
      */
     public static function get_tutor_forum_answers_returns() {
-        return new \external_function_parameters(array(
-                'id' => new \external_value(
+        return new external_function_parameters(array(
+                'id' => new external_value(
                     PARAM_INT,
                     get_string('returnid', 'local_monitor')
                 ),
-                'course' => new \external_value(
+                'course' => new external_value(
                     PARAM_TEXT,
                     get_string('returncoursefullname', 'local_monitor')
                 ),
-                'itens' => new \external_multiple_structure(
-                    new \external_single_structure(array(
-                            'groupid' => new \external_value(
+                'itens' => new external_multiple_structure(
+                    new external_single_structure(array(
+                            'groupid' => new external_value(
                                 PARAM_TEXT,
                                 get_string('paramgroupid', 'local_monitor')
                             ),
-                            'grupname' => new \external_value(
+                            'grupname' => new external_value(
                                 PARAM_TEXT,
                                 get_string('groupname', 'local_monitor')
                             ),
-                            'discussion' => new \external_value(
+                            'discussion' => new external_value(
                                 PARAM_TEXT,
                                 get_string('discussionname', 'local_monitor')
                             ),
-                            'tutorposts' => new \external_value(
+                            'tutorposts' => new external_value(
                                 PARAM_INT,
                                 get_string('tutorposts', 'local_monitor')
                             ),
-                            'studentsposts' => new \external_value(
+                            'studentsposts' => new external_value(
                                 PARAM_TEXT,
                                 get_string('studentsposts', 'local_monitor')
                             ),
-                            'percent' => new \external_value(
+                            'percent' => new external_value(
                                 PARAM_TEXT,
                                 get_string('tutorpercent', 'local_monitor')
                             ),
-                            'userparticipation' => new \external_value(
+                            'userparticipation' => new external_value(
                                 PARAM_TEXT,
                                 get_string('tutorparticipation', 'local_monitor')
                             ),
-                            'mediumresponsetime' => new \external_value(
+                            'mediumresponsetime' => new external_value(
                                 PARAM_TEXT,
                                 get_string('responsetime', 'local_monitor')
                             )

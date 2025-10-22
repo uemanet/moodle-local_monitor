@@ -16,8 +16,6 @@
 
 namespace local_monitor;
 
-defined('MOODLE_INTERNAL') || die();
-
 /**
  * discussion_tree class
  *

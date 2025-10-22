@@ -24,36 +24,34 @@ defined('MOODLE_INTERNAL') || die();
  * @license http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @author Lucas S. Vieira <lucassouzavieiraengcomp@gmail.com>
  */
-$functions = array(
-    'local_monitor_get_tutor_online_time' => array(
+$functions = [
+    'local_monitor_get_tutor_online_time' => [
         'classname' => 'local_monitor_external',
         'methodname' => 'get_online_time',
         'classpath' => 'local/monitor/classes/external',
         'description' => get_string('functiongettutoronlinetime', 'local_monitor'),
         'type' => 'read'
-    ),
-
-    'local_monitor_ping' => array(
+    ],
+    'local_monitor_ping' => [
         'classname' => 'local_monitor_external',
         'methodname' => 'monitor_ping',
         'classpath' => 'local/monitor/classes/external',
         'description' => get_string('functionping', 'local_monitor'),
         'type' => 'read'
-    ),
-
-    'local_monitor_tutor_answers' => array(
+    ],
+    'local_monitor_tutor_answers' => [
         'classname' => 'local_monitor_external',
         'methodname' => 'get_tutor_forum_answers',
         'classpath' => 'local/monitor/classes/external',
         'description' => get_string('functiontutoransweres', 'local_monitor'),
         'type' => 'read'
-    )
-);
+    ],
+];
 
-$services = array(
-    'Monitor' => array(
-        'functions' => array('local_monitor_get_tutor_online_time', 'local_monitor_ping', 'local_monitor_tutor_answers'),
-        'restrictedusers' => 0,
-        'enabled' => 1
-    )
-);
+$services = [
+    'Monitor' => [
+        'functions' => ['local_monitor_get_tutor_online_time', 'local_monitor_ping', 'local_monitor_tutor_answers'],
+        'restrictedusers' => 1,
+        'enabled' => 1,
+    ]
+];
